@@ -284,7 +284,9 @@ func (m *Model) renderCombinedHelpStatusBar() string {
 
 	// Get help text based on active pane and current filter
 	var helpText string
-	if m.activePane == paneFilter {
+	if m.viewMode == ViewSort {
+		helpText = SortMenuHelp
+	} else if m.activePane == paneFilter {
 		helpText = HelpFilterPane
 	} else {
 		// Check if we're viewing deleted tasks

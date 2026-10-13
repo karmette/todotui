@@ -18,6 +18,7 @@ const (
 	ViewHelp
 	ViewEdit
 	ViewAdd
+	ViewSort
 )
 
 // Pane represents which pane is active

@@ -303,6 +303,22 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
+		// Sorting is a transient menu shown in the bottom bar. It is only
+		// reachable from the todo pane, and consumes keys until it is closed.
+		if m.viewMode == ViewSort {
+			switch msg.String() {
+			case dKey:
+				m.viewMode = ViewTask
+				return m, m.sortVisibleTasks(sortByDueDate)
+			case pKey:
+				m.viewMode = ViewTask
+				return m, m.sortVisibleTasks(sortByPriority)
+			case escKey, ctrlSKey:
+				m.viewMode = ViewTask
+			}
+			return m, nil
+		}
+
 		// Handle normal mode keys
 		switch msg.String() {
 		case helpKey:
@@ -312,6 +328,11 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		case qKey, ctrlCKey:
 			return m, tea.Quit
+		case ctrlSKey:
+			if m.activePane == paneTask {
+				m.viewMode = ViewSort
+			}
+			return m, nil
 		case aKey:
 			// Add new task
 			m.viewMode = ViewAdd
@@ -510,6 +531,14 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					// Show error message for 3 seconds if copy failed
 					return m, m.setStatusMessage("❌ Failed to copy task", 3*time.Second)
 				}
+			}
+		case JKey:
+			if m.activePane == paneTask {
+				return m, m.moveSelectedTask(1)
+			}
+		case KKey:
+			if m.activePane == paneTask {
+				return m, m.moveSelectedTask(-1)
 			}
 		case jKey, downKey:
 			if m.activePane == paneFilter {

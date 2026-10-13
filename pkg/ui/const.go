@@ -107,6 +107,7 @@ const (
 	HelpFilterPane      = "?: help | j/k: navigate | Enter: select filter & move to tasks | Tab/h/l: switch panes | a: add | q: quit"
 	HelpTaskPane        = "?: help | j/k: navigate | Enter: toggle completion | e: edit | p: priority toggle | t: toggle due today | d: delete | y: copy task | Tab/h/l: switch panes | a: add | q: quit"
 	HelpDeletedTaskPane = "?: help | j/k: navigate | r: restore task | y: copy task | Tab/h/l: switch panes | a: add | q: quit"
+	SortMenuHelp        = "Sort todos: d: due date | p: priority | Esc/Ctrl+S: cancel"
 
 	// Panel titles
 	FilterPaneTitle = "Workspaces"
@@ -150,6 +151,7 @@ const (
 // よく使用されるキー文字列定数
 const (
 	ctrlCKey = "ctrl+c"
+	ctrlSKey = "ctrl+s"
 	escKey   = "esc"
 	enterKey = "enter"
 	tabKey   = "tab"
@@ -168,6 +170,8 @@ const (
 	lKey = "l"
 	gKey = "g"
 	GKey = "G"
+	JKey = "J"
+	KKey = "K"
 
 	// Action keys
 	qKey = "q"

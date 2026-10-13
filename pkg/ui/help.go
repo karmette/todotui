@@ -46,6 +46,8 @@ func (m *Model) initializeHelpContent() {
 		{
 			Category: "Task Operations",
 			Items: []HelpItem{
+				{"Ctrl+S", "Choose a one-time sort (due date or priority)"},
+				{"Shift+J / Shift+K", "Move task down / up"},
 				{"y", "Copy task text to clipboard"},
 				{"p", "Cycle task priority"},
 				{"t", "Toggle due date to today"},

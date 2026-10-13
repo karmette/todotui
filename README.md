@@ -65,6 +65,8 @@ todotui --config config.yaml ~/todo.txt
 | `e` | Edit task |
 | `d` | Delete task |
 | `p` | Cycle priority (A→B→C→D→none) |
+| `Ctrl+S`, then `d/p` | Reorder visible todos by due date / priority |
+| `Shift+J/K` | Move the selected todo down/up |
 | `r` | Restore deleted/completed task |
 | `y` | Copy task text to clipboard |
 | `?` | Show help |
@@ -125,4 +127,3 @@ cd todotui
 make install  # Install development tools and set up pre-commit hooks
 make build    # Build the application
 ```
-
