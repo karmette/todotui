@@ -92,7 +92,8 @@ const (
 
 const (
 	// Text area placeholder
-	TaskInputPlaceholder = "Enter task description (e.g., 'call @mom +home due:2025-01-15')"
+	TaskInputPlaceholder    = "Enter a task (e.g., 'call @mom +home')"
+	DueDateInputPlaceholder = "Optional (e.g., 'Oct 15', 'Thursday', or 'tomorrow')"
 
 	// Edit mode titles
 	AddTaskTitle  = "Add New Task"
@@ -100,6 +101,7 @@ const (
 
 	// Edit mode help
 	EditModeHelp = "Enter: save | Esc/Ctrl+C: cancel"
+	AddModeHelp  = "Tab/Shift+Tab: switch fields | Enter: save | Esc/Ctrl+C: cancel"
 
 	// Help text
 	HelpFilterPane      = "?: help | j/k: navigate | Enter: select filter & move to tasks | Tab/h/l: switch panes | a: add | q: quit"

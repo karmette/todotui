@@ -50,9 +50,14 @@ func NewModel(todoFile string, appConfig AppConfig) (*Model, error) {
 
 	// Initialize text input for adding/editing tasks
 	ti := textinput.New()
-	ti.Placeholder = "Enter a task..."
+	ti.Placeholder = TaskInputPlaceholder
 	ti.CharLimit = 512
 	ti.Width = 50 // Will be updated in updatePaneSizes
+
+	dueDateInput := textinput.New()
+	dueDateInput.Placeholder = DueDateInputPlaceholder
+	dueDateInput.CharLimit = 100
+	dueDateInput.Width = 50
 
 	model := &Model{
 		filterList:       SimpleList{},
@@ -70,6 +75,8 @@ func NewModel(todoFile string, appConfig AppConfig) (*Model, error) {
 		statusMessage:    "",
 		statusMessageEnd: time.Now(),
 		textInput:        ti,
+		dueDateInput:     dueDateInput,
+		activeAddInput:   addInputTask,
 		editingTask:      nil,
 	}
 
@@ -142,7 +149,21 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.editingTask = nil
 				m.textInput.SetValue("")
 				m.textInput.Blur()
+				m.dueDateInput.SetValue("")
+				m.dueDateInput.Blur()
+				m.addInputError = ""
 				return m, nil
+			case "tab", "shift+tab":
+				if m.viewMode == ViewAdd {
+					if m.activeAddInput == addInputTask {
+						m.activeAddInput = addInputDueDate
+						m.textInput.Blur()
+						return m, m.dueDateInput.Focus()
+					}
+					m.activeAddInput = addInputTask
+					m.dueDateInput.Blur()
+					return m, m.textInput.Focus()
+				}
 			case "enter":
 				// Save task
 				text := strings.TrimSpace(m.textInput.Value())
@@ -150,6 +171,18 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				if text != "" {
 					if m.viewMode == ViewAdd {
+						dueDateText := strings.TrimSpace(m.dueDateInput.Value())
+						if dueDateText != "" {
+							dueDate, err := parseDueDate(dueDateText, time.Now())
+							if err != nil {
+								m.addInputError = "Could not understand that due date"
+								m.activeAddInput = addInputDueDate
+								m.textInput.Blur()
+								return m, m.dueDateInput.Focus()
+							}
+							text = taskTextWithDueDate(text, dueDate)
+						}
+
 						// Create new task
 						task, err := todotxt.ParseTask(text)
 						if err != nil {
@@ -199,6 +232,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.editingTask = nil
 					m.textInput.SetValue("")
 					m.textInput.Blur()
+					m.dueDateInput.SetValue("")
+					m.dueDateInput.Blur()
+					m.addInputError = ""
 
 					logger.Debug("About to save and refresh")
 					return m, tea.Batch(
@@ -212,11 +248,19 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.editingTask = nil
 				m.textInput.SetValue("")
 				m.textInput.Blur()
+				m.dueDateInput.SetValue("")
+				m.dueDateInput.Blur()
+				m.addInputError = ""
 				return m, nil
 			}
 		}
-		// Update text input
-		m.textInput, cmd = m.textInput.Update(msg)
+		// Update the focused input.
+		if m.viewMode == ViewAdd && m.activeAddInput == addInputDueDate {
+			m.dueDateInput, cmd = m.dueDateInput.Update(msg)
+			m.addInputError = ""
+		} else {
+			m.textInput, cmd = m.textInput.Update(msg)
+		}
 		logger.Debug("Text input updated", "value", m.textInput.Value(), "focused", m.textInput.Focused())
 		return m, cmd
 	}
@@ -272,9 +316,12 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Add new task
 			m.viewMode = ViewAdd
 			m.textInput.SetValue("")
-			m.textInput.Focus()
+			m.dueDateInput.SetValue("")
+			m.dueDateInput.Blur()
+			m.activeAddInput = addInputTask
+			m.addInputError = ""
 			logger.Debug("Entering add mode", "focused", m.textInput.Focused(), "value", m.textInput.Value())
-			return m, nil
+			return m, m.textInput.Focus()
 		case eKey:
 			// Edit selected task
 			if m.activePane == paneTask {
@@ -555,5 +602,6 @@ func (m *Model) updateTextInputSize() {
 		inputWidth = 80 // Maximum width for better UX
 	}
 	m.textInput.Width = inputWidth
+	m.dueDateInput.Width = inputWidth
 	logger.Debug("Updated text input width", "width", inputWidth, "terminal_width", m.width)
 }

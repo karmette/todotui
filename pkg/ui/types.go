@@ -28,6 +28,14 @@ const (
 	paneTask
 )
 
+// addInput identifies the focused field in the task creation form.
+type addInput int
+
+const (
+	addInputTask addInput = iota
+	addInputDueDate
+)
+
 // FilterData holds information about a filter
 type FilterData struct {
 	name     string
@@ -74,5 +82,8 @@ type Model struct {
 	helpContent      []HelpContent   // Help content for key bindings
 	helpScroll       int             // Current scroll position in help view
 	textInput        textinput.Model // Text input for adding/editing tasks
+	dueDateInput     textinput.Model // Optional natural-language due date when adding tasks
+	activeAddInput   addInput        // Focused field in the add form
+	addInputError    string          // Validation error shown in the add form
 	editingTask      *todotxt.Task   // Currently editing task
 }

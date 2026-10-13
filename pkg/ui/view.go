@@ -116,7 +116,7 @@ func (m *Model) View() string {
 		return m.renderHelpView()
 	}
 
-	// If in add/edit mode, show textarea (keeping existing behavior as full screen)
+	// If in add/edit mode, show the task form.
 	if m.viewMode == ViewAdd || m.viewMode == ViewEdit {
 		var title string
 		if m.viewMode == ViewAdd {
@@ -134,10 +134,41 @@ func (m *Model) View() string {
 			Border(lipgloss.NormalBorder()).
 			BorderForeground(m.currentTheme.Primary).
 			Padding(0, 1)
+		inactiveInputStyle := inputStyle.Copy().BorderForeground(m.currentTheme.TextSubtle)
+
+		labelStyle := lipgloss.NewStyle().
+			Foreground(m.currentTheme.Text).
+			Padding(0, 1)
 
 		helpStyle := lipgloss.NewStyle().
 			Foreground(m.currentTheme.TextSubtle).
 			Padding(0, 1)
+		errorStyle := lipgloss.NewStyle().
+			Foreground(m.currentTheme.Danger).
+			Padding(0, 1)
+
+		if m.viewMode == ViewAdd {
+			taskStyle := inactiveInputStyle
+			dueStyle := inactiveInputStyle
+			if m.activeAddInput == addInputTask {
+				taskStyle = inputStyle
+			} else {
+				dueStyle = inputStyle
+			}
+
+			parts := []string{
+				titleStyle.Render(title),
+				labelStyle.Render("Task"),
+				taskStyle.Render(m.textInput.View()),
+				labelStyle.Render("Due date (optional)"),
+				dueStyle.Render(m.dueDateInput.View()),
+			}
+			if m.addInputError != "" {
+				parts = append(parts, errorStyle.Render(m.addInputError))
+			}
+			parts = append(parts, helpStyle.Render(AddModeHelp))
+			return lipgloss.JoinVertical(lipgloss.Left, parts...)
+		}
 
 		return lipgloss.JoinVertical(lipgloss.Left,
 			titleStyle.Render(title),
